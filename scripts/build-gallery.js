@@ -64,26 +64,39 @@ function parseCategoryPrompts(slug) {
 function buildReadme(categories) {
   const total = categories.reduce((s, c) => s + c.prompts.length, 0);
 
-  // TOC
+  // TOC - use anchor compatible with GitHub's auto-generated header IDs
   let toc = categories.map((c, i) =>
-    `| ${String(i + 1).padStart(2, " ")} | [${c.title}](#${c.slug}) | ${c.desc} | ${c.prompts.length} |`
+    `| ${String(i + 1).padStart(2, " ")} | [${c.title}](#${c.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}) | ${c.desc} | ${c.prompts.length} |`
   ).join("\n");
 
-  // Prompt sections: image gallery 2/row + prompt list below
+  // Prompt sections: 2-column image gallery + prompt list below
   let sections = categories.map(cat => {
     let md = `## ${cat.title}\n\n${cat.desc}\n\n`;
 
+    // Image gallery: 2 per row
+    md += `<table><tr>\n`;
+    for (let i = 0; i < cat.prompts.length; i++) {
+      const p = cat.prompts[i];
+      md += `<td align="center" width="50%"><a href="images/${cat.slug}/${p.imagePath}"><img src="images/${cat.slug}/${p.imagePath}" width="100%"></a><br><sub><b>${p.num}. ${p.title}</b></sub></td>\n`;
+      if (i % 2 === 1 || i === cat.prompts.length - 1) {
+        if (i % 2 === 0 && i === cat.prompts.length - 1) md += `<td></td>\n`;
+        md += `</tr>\n`;
+        if (i < cat.prompts.length - 1) md += `<tr>\n`;
+      }
+    }
+    md += `</table>\n\n`;
+
+    // Prompts: markdown code blocks (copyable)
     for (const p of cat.prompts) {
-      md += `### ${p.num}. ${p.title}\n`;
-      if (p.style) md += `*${p.style}*\n\n`;
-      md += `[![${p.title}](images/${cat.slug}/${p.imagePath})](images/${cat.slug}/${p.imagePath})\n\n`;
-      md += `\`\`\`\n${p.promptText}\n\`\`\`\n`;
+      md += `### ${p.num}. ${p.title}`;
+      if (p.style) md += ` *${p.style}*`;
+      md += `\n\n\`\`\`\n${p.promptText}\n\`\`\`\n`;
       if (p.technique) md += `\n> *Technique: ${p.technique}*\n`;
-      md += `\n---\n\n`;
+      md += `\n`;
     }
 
     return md;
-  }).join("\n");
+  }).join("\n---\n\n");
 
   const readme = `# Awesome GPT Image 2 Prompts
 
