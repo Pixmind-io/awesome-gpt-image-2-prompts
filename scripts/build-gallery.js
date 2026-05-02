@@ -72,23 +72,23 @@ function buildReadme(categories) {
   // Prompt sections: 2 per row, image + prompt below
   let sections = categories.map(cat => {
     let md = `## ${cat.title}\n\n${cat.desc}\n\n`;
-    md += `<table>\n`;
+    md += `<table><tr>\n`;
 
     for (let i = 0; i < cat.prompts.length; i++) {
       const p = cat.prompts[i];
-      if (i % 2 === 0) md += `<tr>\n`;
-      md += `<td width="50%" valign="top">\n\n`;
-      md += `<img src="images/${cat.slug}/${p.imagePath}" width="100%">\n\n`;
-      md += `**${p.num}. ${p.title}**`;
-      if (p.style) md += ` *${p.style}*`;
-      md += `\n\n`;
-      md += `\`\`\`\n${p.promptText}\n\`\`\`\n`;
-      if (p.technique) md += `\n> *Technique: ${p.technique}*\n`;
-      md += `\n</td>\n`;
+      md += `<td width="50%" valign="top">\n`;
+      md += `<img src="images/${cat.slug}/${p.imagePath}" width="100%">\n`;
+      md += `<br>\n`;
+      md += `<b>${p.num}. ${p.title}</b>`;
+      if (p.style) md += ` <i>${p.style}</i>`;
+      md += `<br>\n`;
+      md += `<pre>${escHtml(p.promptText)}</pre>\n`;
+      if (p.technique) md += `<small><i>Technique: ${escHtml(p.technique)}</i></small><br>\n`;
+      md += `</td>\n`;
       if (i % 2 === 1 || i === cat.prompts.length - 1) {
-        // pad odd row
         if (i % 2 === 0 && i === cat.prompts.length - 1) md += `<td></td>\n`;
         md += `</tr>\n`;
+        if (i < cat.prompts.length - 1) md += `<tr>\n`;
       }
     }
 
