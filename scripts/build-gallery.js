@@ -73,13 +73,20 @@ function buildReadme(categories) {
   let sections = categories.map(cat => {
     let md = `## ${cat.title}\n\n${cat.desc}\n\n`;
 
-    // Image gallery table
+    // Image gallery + prompts: 2 per row
     md += `<table><tr>\n`;
     for (let i = 0; i < cat.prompts.length; i++) {
       const p = cat.prompts[i];
-      md += `<td align="center"><a href="images/${cat.slug}/${p.imagePath}"><img src="images/${cat.slug}/${p.imagePath}" width="100%"></a><br><sub><b>${p.num}. ${p.title}</b>`;
-      if (p.style) md += ` · <i>${p.style}</i>`;
-      md += `</sub></td>\n`;
+      md += `<td width="50%" valign="top">\n`;
+      md += `<a href="images/${cat.slug}/${p.imagePath}"><img src="images/${cat.slug}/${p.imagePath}" width="100%"></a>\n\n`;
+      md += `<details>\n`;
+      md += `<summary><b>${p.num}. ${p.title}</b>`;
+      if (p.style) md += ` · ${p.style}`;
+      md += `</summary>\n\n`;
+      md += `\`\`\`\n${p.promptText}\n\`\`\`\n`;
+      if (p.technique) md += `\n*Technique: ${p.technique}*\n`;
+      md += `\n</details>\n`;
+      md += `</td>\n`;
       if (i % 2 === 1 || i === cat.prompts.length - 1) {
         if (i % 2 === 0 && i === cat.prompts.length - 1) md += `<td></td>\n`;
         md += `</tr>\n`;
@@ -87,15 +94,6 @@ function buildReadme(categories) {
       }
     }
     md += `</table>\n\n`;
-
-    // Prompts as markdown code blocks (copyable)
-    for (const p of cat.prompts) {
-      md += `### ${p.num}. ${p.title}`;
-      if (p.style) md += ` *${p.style}*`;
-      md += `\n\n\`\`\`\n${p.promptText}\n\`\`\`\n`;
-      if (p.technique) md += `> *Technique: ${p.technique}*\n`;
-      md += `\n`;
-    }
 
     return md;
   }).join("\n---\n\n");
